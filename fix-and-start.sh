@@ -5,7 +5,7 @@ echo ""
 
 # Stop all services
 echo "1. Stopping all services..."
-docker-compose down
+sudo docker compose down
 
 # Create necessary directories
 echo "2. Creating necessary directories..."
@@ -15,21 +15,21 @@ mkdir -p grafana/provisioning/datasources
 mkdir -p grafana/provisioning/dashboards
 mkdir -p intelligence-engine/models
 mkdir -p intelligence-engine/services
-mkdir-p intelligence-engine/api
+mkdir -p intelligence-engine/api
 
 # Remove problematic volumes
 echo "3. Cleaning problematic volumes..."
-docker volume rm intelligent-developers-platform_tempo-data 2>/dev/null || true
-docker volume rm intelligent-developers-platform_mimir-data 2>/dev/null || true
-docker volume rm intelligent-developers-platform_loki-data 2>/dev/null || true
+sudo docker volume rm intelligent-developers-platform_tempo-data 2>/dev/null || true
+sudo docker volume rm intelligent-developers-platform_mimir-data 2>/dev/null || true
+sudo docker volume rm intelligent-developers-platform_loki-data 2>/dev/null || true
 
 # Rebuild services
 echo "4. Rebuilding services..."
-docker-compose build intelligence-engine data-collector
+sudo docker compose build intelligence-engine data-collector
 
 # Start services
 echo "5. Starting services..."
-docker-compose up -d
+sudo docker compose up -d
 
 # Wait for services
 echo "6. Waiting for services to be ready (60 seconds)..."
@@ -42,7 +42,7 @@ echo ""
 
 services=("grafana" "mimir" "loki" "tempo" "intelligence-engine" "postgres" "redis")
 for service in "${services[@]}"; do
-    if docker-compose ps | grep -q "$service.*Up"; then
+    if sudo docker compose ps | grep -q "$service.*Up"; then
         echo "✅ $service is running"
     else
         echo "❌ $service is NOT running"
