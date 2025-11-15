@@ -439,15 +439,174 @@
             text-align: center;
             margin-top: 1rem;
         }
+
+        .nav-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-md);
+        }
+
+        .nav-button:hover {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .nav-button i {
+            font-size: 1.1rem;
+        }
+
+        .grafana-button:hover {
+            background: linear-gradient(135deg, #f46800, #ff8c00);
+            border-color: #f46800;
+        }
+
+        .auto-refresh-toggle {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--bg-tertiary);
+            transition: 0.4s;
+            border-radius: 30px;
+            border: 2px solid var(--border-color);
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+
+        .notification {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow-xl);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification.success {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .notification.error {
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .notification.info {
+            border-left: 4px solid var(--info-color);
+        }
     </style>
 </head>
 <body>
     <div class="dashboard-container">
         <div class="dashboard-header">
-            <h1 class="dashboard-title">
-                <i class="fas fa-brain"></i> Intelligence Engine Dashboard
-            </h1>
-            <p class="dashboard-subtitle">Real-time commit recommendations and self-healing status</p>
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                <div>
+                    <h1 class="dashboard-title">
+                        <i class="fas fa-brain"></i> Intelligence Engine Dashboard
+                    </h1>
+                    <p class="dashboard-subtitle">Real-time commit recommendations and self-healing status</p>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <a href="/docs" class="nav-button" title="API Documentation">
+                        <i class="fas fa-book"></i>
+                        <span>API Docs</span>
+                    </a>
+                    <a href="http://localhost:3000" target="_blank" class="nav-button grafana-button" title="Open Grafana">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Grafana</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="auto-refresh-toggle">
+            <div>
+                <span style="font-weight: 600; color: var(--text-primary); display: block; margin-bottom: 0.25rem;">
+                    <i class="fas fa-sync-alt"></i> Auto-Refresh
+                </span>
+                <span style="font-size: 0.85rem; color: var(--text-secondary);">
+                    Automatically refresh data every 30 seconds
+                </span>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" id="autoRefreshToggle" checked>
+                <span class="toggle-slider"></span>
+            </label>
         </div>
 
         <div class="dashboard-grid">
@@ -746,16 +905,61 @@
             fetchHealingStatus();
         }
 
-        // Auto-refresh every 30 seconds
-        setInterval(() => {
-            fetchCommitStatus();
-            fetchHealingStatus();
-        }, 30000);
+        // Auto-refresh functionality
+        let autoRefreshInterval;
+        const autoRefreshToggle = document.getElementById('autoRefreshToggle');
+
+        function startAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+            if (autoRefreshToggle.checked) {
+                autoRefreshInterval = setInterval(() => {
+                    fetchCommitStatus();
+                    fetchHealingStatus();
+                    showNotification('Data refreshed successfully', 'success');
+                }, 30000);
+            }
+        }
+
+        autoRefreshToggle.addEventListener('change', () => {
+            if (autoRefreshToggle.checked) {
+                startAutoRefresh();
+                showNotification('Auto-refresh enabled', 'info');
+            } else {
+                clearInterval(autoRefreshInterval);
+                showNotification('Auto-refresh disabled', 'info');
+            }
+        });
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            const icon = type === 'success' ? 'check-circle' : 
+                        type === 'error' ? 'exclamation-circle' : 'info-circle';
+            
+            notification.innerHTML = `
+                <i class="fas fa-${icon}" style="font-size: 1.25rem; color: var(--${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'}-color);"></i>
+                <span style="color: var(--text-primary);">${message}</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
 
         // Initial load
         document.addEventListener('DOMContentLoaded', () => {
             fetchCommitStatus();
             fetchHealingStatus();
+            startAutoRefresh();
         });
 
         // Console message

@@ -17,6 +17,12 @@
                 <h1>Intelligence<br/>Engine</h1>
             </div>
             
+            <div style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color);">
+                <a href="/main" class="nav-link" style="background: rgba(99, 102, 241, 0.15); border-left-color: var(--primary-color);">
+                    <i class="fas fa-home"></i> Main Dashboard
+                </a>
+            </div>
+            
             <nav class="nav-menu">
                 <div class="nav-section">
                     <h3>Getting Started</h3>
@@ -246,8 +252,26 @@
                         <div class="endpoint-header">
                             <span class="method method-post">POST</span>
                             <span class="endpoint-path">/api/v1/analyze/commit</span>
+                            <button class="try-button" onclick="toggleTestForm('analyze-commit')">
+                                <i class="fas fa-play"></i> Try it
+                            </button>
                         </div>
                         <p class="endpoint-description">Analyze a Git commit for breaking changes and potential issues.</p>
+                        
+                        <div id="analyze-commit-form" class="test-form" style="display: none;">
+                            <h4>Test this endpoint</h4>
+                            <div class="form-group">
+                                <label>Repository</label>
+                                <input type="text" id="commit-repo" placeholder="e.g., owner/repo" value="example/repo">
+                            </div>
+                            <div class="form-group">
+                                <label>Commit Hash</label>
+                                <input type="text" id="commit-hash" placeholder="e.g., abc123def456" value="abc123def456">
+                            </div>
+                            <button class="execute-button" onclick="executeCommitAnalysis()">
+                                <i class="fas fa-play-circle"></i> Execute Request
+                            </button>
+                        </div>
                         
                         <div class="endpoint-section">
                             <h4>Request Body</h4>
@@ -286,6 +310,8 @@
                                 </tbody>
                             </table>
                         </div>
+                        
+                        <div id="analyze-commit-result" class="result-panel" style="display: none;"></div>
                     </div>
                 </section>
 
@@ -296,8 +322,31 @@
                         <div class="endpoint-header">
                             <span class="method method-post">POST</span>
                             <span class="endpoint-path">/api/v1/analyze/logs</span>
+                            <button class="try-button" onclick="toggleTestForm('analyze-logs')">
+                                <i class="fas fa-play"></i> Try it
+                            </button>
                         </div>
                         <p class="endpoint-description">Analyze application logs for patterns and anomalies.</p>
+                        
+                        <div id="analyze-logs-form" class="test-form" style="display: none;">
+                            <h4>Test this endpoint</h4>
+                            <div class="form-group">
+                                <label>Log Data (JSON)</label>
+                                <textarea id="logs-data" rows="8" placeholder="Enter log entries in JSON format">{
+  "logs": [
+    {
+      "timestamp": "2025-11-15T11:38:14.000Z",
+      "level": "ERROR",
+      "message": "Connection timeout",
+      "service": "api-gateway"
+    }
+  ]
+}</textarea>
+                            </div>
+                            <button class="execute-button" onclick="executeLogsAnalysis()">
+                                <i class="fas fa-play-circle"></i> Execute Request
+                            </button>
+                        </div>
                         
                         <div class="endpoint-section">
                             <h4>Request Body</h4>
@@ -314,6 +363,8 @@
 }</code></pre>
                             </div>
                         </div>
+                        
+                        <div id="analyze-logs-result" class="result-panel" style="display: none;"></div>
                     </div>
                 </section>
 
@@ -324,8 +375,31 @@
                         <div class="endpoint-header">
                             <span class="method method-post">POST</span>
                             <span class="endpoint-path">/api/v1/analyze/traces</span>
+                            <button class="try-button" onclick="toggleTestForm('analyze-traces')">
+                                <i class="fas fa-play"></i> Try it
+                            </button>
                         </div>
                         <p class="endpoint-description">Analyze distributed traces for performance issues.</p>
+                        
+                        <div id="analyze-traces-form" class="test-form" style="display: none;">
+                            <h4>Test this endpoint</h4>
+                            <div class="form-group">
+                                <label>Trace Data (JSON)</label>
+                                <textarea id="traces-data" rows="8" placeholder="Enter trace data in JSON format">{
+  "traces": [
+    {
+      "trace_id": "abc123",
+      "span_id": "def456",
+      "duration_ms": 250,
+      "service": "user-service"
+    }
+  ]
+}</textarea>
+                            </div>
+                            <button class="execute-button" onclick="executeTracesAnalysis()">
+                                <i class="fas fa-play-circle"></i> Execute Request
+                            </button>
+                        </div>
                         
                         <div class="endpoint-section">
                             <h4>Request Body</h4>
@@ -342,6 +416,8 @@
 }</code></pre>
                             </div>
                         </div>
+                        
+                        <div id="analyze-traces-result" class="result-panel" style="display: none;"></div>
                     </div>
                 </section>
 
@@ -352,8 +428,35 @@
                         <div class="endpoint-header">
                             <span class="method method-post">POST</span>
                             <span class="endpoint-path">/api/v1/heal</span>
+                            <button class="try-button" onclick="toggleTestForm('heal')">
+                                <i class="fas fa-play"></i> Try it
+                            </button>
                         </div>
                         <p class="endpoint-description">Trigger automated self-healing for detected issues.</p>
+                        
+                        <div id="heal-form" class="test-form" style="display: none;">
+                            <h4>Test this endpoint</h4>
+                            <div class="form-group">
+                                <label>Issue Type</label>
+                                <input type="text" id="heal-issue-type" placeholder="e.g., memory_leak" value="memory_leak">
+                            </div>
+                            <div class="form-group">
+                                <label>Service</label>
+                                <input type="text" id="heal-service" placeholder="e.g., api-gateway" value="api-gateway">
+                            </div>
+                            <div class="form-group">
+                                <label>Severity</label>
+                                <select id="heal-severity">
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high" selected>High</option>
+                                    <option value="critical">Critical</option>
+                                </select>
+                            </div>
+                            <button class="execute-button" onclick="executeHeal()">
+                                <i class="fas fa-play-circle"></i> Execute Request
+                            </button>
+                        </div>
                         
                         <div class="endpoint-section">
                             <h4>Request Body</h4>
@@ -368,6 +471,8 @@
 }</code></pre>
                             </div>
                         </div>
+                        
+                        <div id="heal-result" class="result-panel" style="display: none;"></div>
                     </div>
                 </section>
 
@@ -465,5 +570,146 @@
     </div>
 
     <script src="/static/script.js"></script>
+    <script>
+        // Toggle test form visibility
+        function toggleTestForm(endpoint) {
+            const form = document.getElementById(`${endpoint}-form`);
+            if (form) {
+                form.style.display = form.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        // Show result in panel
+        function showResult(endpoint, data, isError = false) {
+            const resultDiv = document.getElementById(`${endpoint}-result`);
+            if (!resultDiv) return;
+
+            resultDiv.style.display = 'block';
+            resultDiv.className = `result-panel ${isError ? 'result-error' : 'result-success'}`;
+            
+            const icon = isError ? 'exclamation-circle' : 'check-circle';
+            const iconColor = isError ? '#ef4444' : '#10b981';
+            
+            resultDiv.innerHTML = `
+                <h4><i class="fas fa-${icon}" style="color: ${iconColor};"></i> ${isError ? 'Error' : 'Success'}</h4>
+                <div class="code-block">
+                    <pre><code>${JSON.stringify(data, null, 2)}</code></pre>
+                </div>
+            `;
+
+            // Add copy button
+            const codeBlock = resultDiv.querySelector('.code-block');
+            if (codeBlock && !codeBlock.querySelector('.copy-button')) {
+                const button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<i class="fas fa-copy"></i>';
+                button.title = 'Copy to clipboard';
+                
+                button.addEventListener('click', () => {
+                    const code = codeBlock.querySelector('code').textContent;
+                    navigator.clipboard.writeText(code).then(() => {
+                        button.innerHTML = '<i class="fas fa-check"></i>';
+                        button.style.color = '#10b981';
+                        setTimeout(() => {
+                            button.innerHTML = '<i class="fas fa-copy"></i>';
+                            button.style.color = '';
+                        }, 2000);
+                    });
+                });
+                
+                codeBlock.style.position = 'relative';
+                codeBlock.appendChild(button);
+            }
+
+            // Scroll to result
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Execute commit analysis
+        async function executeCommitAnalysis() {
+            const repository = document.getElementById('commit-repo').value;
+            const commit_hash = document.getElementById('commit-hash').value;
+
+            if (!repository || !commit_hash) {
+                showResult('analyze-commit', { error: 'Please fill in all fields' }, true);
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/v1/analyze/commit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ repository, commit_hash })
+                });
+                const data = await response.json();
+                showResult('analyze-commit', data, !response.ok);
+            } catch (error) {
+                showResult('analyze-commit', { error: error.message }, true);
+            }
+        }
+
+        // Execute logs analysis
+        async function executeLogsAnalysis() {
+            const logsData = document.getElementById('logs-data').value;
+
+            try {
+                const parsedData = JSON.parse(logsData);
+                const response = await fetch('/api/v1/analyze/logs', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(parsedData)
+                });
+                const data = await response.json();
+                showResult('analyze-logs', data, !response.ok);
+            } catch (error) {
+                showResult('analyze-logs', { error: error.message }, true);
+            }
+        }
+
+        // Execute traces analysis
+        async function executeTracesAnalysis() {
+            const tracesData = document.getElementById('traces-data').value;
+
+            try {
+                const parsedData = JSON.parse(tracesData);
+                const response = await fetch('/api/v1/analyze/traces', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(parsedData)
+                });
+                const data = await response.json();
+                showResult('analyze-traces', data, !response.ok);
+            } catch (error) {
+                showResult('analyze-traces', { error: error.message }, true);
+            }
+        }
+
+        // Execute heal
+        async function executeHeal() {
+            const issue_type = document.getElementById('heal-issue-type').value;
+            const service = document.getElementById('heal-service').value;
+            const severity = document.getElementById('heal-severity').value;
+
+            if (!issue_type || !service) {
+                showResult('heal', { error: 'Please fill in all fields' }, true);
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/v1/heal', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        issue_type,
+                        context: { service, severity, details: {} }
+                    })
+                });
+                const data = await response.json();
+                showResult('heal', data, !response.ok);
+            } catch (error) {
+                showResult('heal', { error: error.message }, true);
+            }
+        }
+    </script>
 </body>
 </html>
