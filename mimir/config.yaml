@@ -1,0 +1,51 @@
+target: all
+
+multitenancy_enabled: false
+
+server:
+  http_listen_port: 9009
+  log_level: info
+
+distributor:
+  pool:
+    health_check_ingesters: true
+
+ingester:
+  ring:
+    replication_factor: 1
+    kvstore:
+      store: inmemory
+
+
+blocks_storage:
+  backend: filesystem
+  filesystem:
+    dir: /data/mimir/blocks
+
+compactor:
+  data_dir: /data/mimir/compactor
+  sharding_ring:
+    kvstore:
+      store: inmemory
+
+ruler:
+  rule_path: /data/mimir/rules
+  alertmanager_url: http://localhost:9009/alertmanager
+  ring:
+    kvstore:
+      store: inmemory
+
+alertmanager:
+  data_dir: /data/mimir/alertmanager
+  external_url: http://localhost:9009/alertmanager
+  sharding_ring:
+    replication_factor: 1
+    kvstore:
+      store: inmemory
+
+limits:
+  max_global_series_per_user: 0
+  max_global_series_per_metric: 0
+  ingestion_rate: 100000
+  ingestion_burst_size: 200000
+
