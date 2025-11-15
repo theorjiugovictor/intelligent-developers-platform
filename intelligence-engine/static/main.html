@@ -21,6 +21,33 @@
             margin-bottom: 2rem;
         }
 
+        .logo-container {
+            position: relative;
+            animation: floatLogo 3s ease-in-out infinite;
+        }
+
+        .main-logo {
+            height: 80px;
+            width: auto;
+            filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.4));
+            transition: all 0.3s ease;
+            border-radius: 12px;
+        }
+
+        .main-logo:hover {
+            filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.7)) drop-shadow(0 0 40px rgba(139, 92, 246, 0.5));
+            transform: scale(1.05) rotate(2deg);
+        }
+
+        @keyframes floatLogo {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
         .dashboard-title {
             font-size: 2.5rem;
             font-weight: 700;
@@ -575,11 +602,16 @@
     <div class="dashboard-container">
         <div class="dashboard-header">
             <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
-                <div>
-                    <h1 class="dashboard-title">
-                        <i class="fas fa-brain"></i> Intelligence Engine Dashboard
-                    </h1>
-                    <p class="dashboard-subtitle">Real-time commit recommendations and self-healing status</p>
+                <div style="display: flex; align-items: center; gap: 1.5rem;">
+                    <div class="logo-container">
+                        <img src="/static/logo/RootOps.png" alt="RootOps Logo" class="main-logo">
+                    </div>
+                    <div>
+                        <h1 class="dashboard-title">
+                            Intelligence Engine Dashboard
+                        </h1>
+                        <p class="dashboard-subtitle">Real-time commit recommendations and self-healing status</p>
+                    </div>
                 </div>
                 <div style="display: flex; gap: 1rem;">
                     <a href="/docs" class="nav-button" title="API Documentation">
