@@ -51,8 +51,11 @@ async def init_db():
             await conn.run_sync(Base.metadata.create_all)
         logger.info("Database initialized successfully")
     except Exception as e:
-        logger.error(f"Error initializing database: {e}")
-        raise
+        if getattr(settings, 'ALLOW_DB_INIT_FAILURE', False):
+            logger.warning(f"Database initialization failed but continuing (ALLOW_DB_INIT_FAILURE=True): {e}")
+        else:
+            logger.error(f"Error initializing database: {e}")
+            raise
 
 async def get_db():
     """Get async database session"""
@@ -65,4 +68,3 @@ async def get_db():
             raise
         finally:
             await session.close()
-

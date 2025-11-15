@@ -1,6 +1,6 @@
 {
+  "title": "Self-Healing & Optimization",
   "dashboard": {
-    "title": "Self-Healing & Optimization",
     "tags": ["idp", "healing", "optimization"],
     "timezone": "browser",
     "schemaVersion": 16,

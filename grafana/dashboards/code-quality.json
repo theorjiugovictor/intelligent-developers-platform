@@ -1,6 +1,6 @@
 {
+  "title": "Code Quality & Predictions",
   "dashboard": {
-    "title": "Code Quality & Predictions",
     "tags": ["idp", "code-quality", "predictions"],
     "timezone": "browser",
     "schemaVersion": 16,

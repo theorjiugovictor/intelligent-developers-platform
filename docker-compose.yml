@@ -109,7 +109,6 @@ services:
       - TEMPO_URL=http://tempo:3200
     volumes:
       - ./intelligence-engine:/app
-      - ./models:/app/models
     networks:
       - idp-network
     depends_on:

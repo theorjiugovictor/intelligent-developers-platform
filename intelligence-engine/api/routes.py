@@ -4,7 +4,7 @@ API Routes for Intelligence Engine
 from fastapi import APIRouter, HTTPException
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel
-from datetime import datetime
+from datetime import datetime, timezone
 
 router = APIRouter()
 
@@ -29,7 +29,7 @@ async def get_status():
     return {
         "status": "operational",
         "version": "1.0.0",
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
 @router.get("/metrics")
@@ -42,6 +42,5 @@ async def get_metrics():
         "breaking_changes_detected": 0,
         "anomalies_detected": 0,
         "healing_actions_taken": 0,
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
-

@@ -5,11 +5,11 @@ from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 
 from config import settings
-from database import init_db, get_db
+from database import init_db  # removed get_db unused
 from models.predictions import BreakingChangeDetector, AnomalyDetector, PerformancePredictor
 from services.commit_analyzer import CommitAnalyzer
 from services.log_analyzer import LogAnalyzer
@@ -79,8 +79,8 @@ async def root():
     return {
         "service": "Intelligence Engine",
         "status": "running",
-        "version": "1.0.0",
-        "timestamp": datetime.utcnow().isoformat()
+        "version": settings.CLAUDE_MODEL if hasattr(settings, 'CLAUDE_MODEL') else "1.0.0",
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
 @app.get("/health")
@@ -88,7 +88,7 @@ async def health_check():
     """Health check endpoint"""
     return {
         "status": "healthy",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "components": {
             "database": "connected",
             "ml_models": "loaded",
@@ -219,7 +219,7 @@ async def trigger_training(
         return {
             "status": "training_started",
             "model_type": model_type,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
     except Exception as e:
         logger.error(f"Error triggering training: {e}")
@@ -228,4 +228,3 @@ async def trigger_training(
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
-

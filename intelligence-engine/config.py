@@ -40,9 +40,11 @@ class Settings(BaseSettings):
     CLAUDE_MODEL: str = "claude-sonnet-4-5-20250514"
     CLAUDE_MAX_TOKENS: int = 4096
 
+    # Startup tolerance
+    ALLOW_DB_INIT_FAILURE: bool = True
+
     class Config:
         env_file = ".env"
         case_sensitive = True
 
 settings = Settings()
-

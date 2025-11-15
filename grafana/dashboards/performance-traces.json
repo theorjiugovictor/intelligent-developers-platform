@@ -1,6 +1,6 @@
 {
+  "title": "Performance Analytics & Traces",
   "dashboard": {
-    "title": "Performance Analytics & Traces",
     "tags": ["idp", "performance", "traces"],
     "timezone": "browser",
     "schemaVersion": 16,
