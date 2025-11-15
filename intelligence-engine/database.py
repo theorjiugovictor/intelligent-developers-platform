@@ -10,6 +10,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# Import monitoring for DB operations tracking
+try:
+    from monitoring import db_operations_total
+except ImportError:
+    db_operations_total = None
+
 # Convert postgresql:// to postgresql+asyncpg://
 ASYNC_DATABASE_URL = settings.DATABASE_URL.replace(
     "postgresql://",
@@ -63,8 +69,14 @@ async def get_db():
         try:
             yield session
             await session.commit()
+            # Track successful DB operations
+            if db_operations_total:
+                db_operations_total.labels(operation="commit", status="success").inc()
         except Exception:
             await session.rollback()
+            # Track failed DB operations
+            if db_operations_total:
+                db_operations_total.labels(operation="rollback", status="error").inc()
             raise
         finally:
             await session.close()

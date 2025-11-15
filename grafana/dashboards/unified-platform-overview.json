@@ -1,0 +1,841 @@
+{
+  "title": "Unified Platform Overview - Intelligent Development Platform",
+  "uid": "unified-platform-overview",
+  "tags": ["idp", "unified", "observability", "loki", "tempo", "mimir"],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": ["10s", "30s", "1m", "5m", "15m", "30m", "1h"]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "gridPos": {"h": 3, "w": 24, "x": 0, "y": 0},
+      "type": "row",
+      "title": "🚀 Platform Health & Metrics (Mimir)",
+      "collapsed": false
+    },
+    {
+      "id": 2,
+      "gridPos": {"h": 8, "w": 6, "x": 0, "y": 1},
+      "type": "stat",
+      "title": "Total Predictions",
+      "description": "Total ML predictions made by the platform",
+      "targets": [
+        {
+          "expr": "sum(idp_predictions_total)",
+          "refId": "A",
+          "datasource": "Mimir"
+        }
+      ],
+      "datasource": "Mimir",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "blue", "value": null},
+              {"color": "green", "value": 100},
+              {"color": "yellow", "value": 500},
+              {"color": "red", "value": 1000}
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": ["lastNotNull"],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 3,
+      "gridPos": {"h": 8, "w": 6, "x": 6, "y": 1},
+      "type": "stat",
+      "title": "Breaking Changes Detected",
+      "description": "Number of breaking changes identified",
+      "targets": [
+        {
+          "expr": "sum(idp_predictions_total{model_type=\"breaking_change\"}) or vector(0)",
+          "refId": "A",
+          "datasource": "Mimir"
+        }
+      ],
+      "datasource": "Mimir",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 5},
+              {"color": "orange", "value": 10},
+              {"color": "red", "value": 20}
+            ]
+          },
+          "unit": "short",
+          "noValue": "0"
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": ["lastNotNull"]
+        },
+        "colorMode": "value",
+        "graphMode": "area",
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 4,
+      "gridPos": {"h": 8, "w": 6, "x": 12, "y": 1},
+      "type": "stat",
+      "title": "Self-Healing Actions",
+      "description": "Automated healing actions performed",
+      "targets": [
+        {
+          "expr": "sum(idp_healing_actions_total{status=\"success\"})",
+          "refId": "A",
+          "datasource": "Mimir"
+        }
+      ],
+      "datasource": "Mimir",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "semi-dark-blue", "value": null},
+              {"color": "green", "value": 1},
+              {"color": "light-green", "value": 10}
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": ["lastNotNull"]
+        },
+        "colorMode": "value",
+        "graphMode": "area",
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 5,
+      "gridPos": {"h": 8, "w": 6, "x": 18, "y": 1},
+      "type": "gauge",
+      "title": "API Response Time (p95)",
+      "description": "95th percentile API latency",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, rate(idp_http_request_duration_seconds_bucket[5m])) * 1000",
+          "refId": "A",
+          "datasource": "Mimir"
+        }
+      ],
+      "datasource": "Mimir",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 200},
+              {"color": "orange", "value": 500},
+              {"color": "red", "value": 1000}
+            ]
+          },
+          "unit": "ms",
+          "min": 0,
+          "max": 2000
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": ["lastNotNull"]
+        },
+        "orientation": "auto",
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true
+      }
+    },
+    {
+      "id": 6,
+      "gridPos": {"h": 9, "w": 12, "x": 0, "y": 9},
+      "type": "timeseries",
+      "title": "📊 Prediction Rate by Model Type",
+      "description": "Real-time prediction rates across all models",
+      "targets": [
+        {
+          "expr": "rate(idp_predictions_total[5m])",
+          "refId": "A",
+          "legendFormat": "{{model_type}} - {{result}}",
+          "datasource": "Mimir"
+        }
+      ],
+      "datasource": "Mimir",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "opacity",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "unit": "ops"
+        }
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": ["lastNotNull", "max"]
+        }
+      }
+    },
+    {
+      "id": 7,
+      "gridPos": {"h": 9, "w": 12, "x": 12, "y": 9},
+      "type": "timeseries",
+      "title": "🔧 Self-Healing Actions Timeline",
+      "description": "Automated remediation actions over time",
+      "targets": [
+        {
+          "expr": "rate(idp_healing_actions_total[5m])",
+          "refId": "A",
+          "legendFormat": "{{action_type}} - {{status}}",
+          "datasource": "Mimir"
+        }
+      ],
+      "datasource": "Mimir",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "gradientMode": "hue",
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            }
+          },
+          "unit": "ops"
+        }
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "id": 8,
+      "gridPos": {"h": 3, "w": 24, "x": 0, "y": 18},
+      "type": "row",
+      "title": "🔍 Distributed Tracing (Tempo)",
+      "collapsed": false
+    },
+    {
+      "id": 9,
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 19},
+      "type": "timeseries",
+      "title": "📈 Request Latency Distribution",
+      "description": "P50, P95, P99 latency from traces",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, rate(idp_http_request_duration_seconds_bucket[5m]))",
+          "refId": "A",
+          "legendFormat": "p50",
+          "datasource": "Mimir"
+        },
+        {
+          "expr": "histogram_quantile(0.95, rate(idp_http_request_duration_seconds_bucket[5m]))",
+          "refId": "B",
+          "legendFormat": "p95",
+          "datasource": "Mimir"
+        },
+        {
+          "expr": "histogram_quantile(0.99, rate(idp_http_request_duration_seconds_bucket[5m]))",
+          "refId": "C",
+          "legendFormat": "p99",
+          "datasource": "Mimir"
+        }
+      ],
+      "datasource": "Mimir",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "Latency",
+            "axisPlacement": "auto",
+            "drawStyle": "line",
+            "fillOpacity": 30,
+            "gradientMode": "scheme",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 4,
+            "showPoints": "auto"
+          },
+          "unit": "s"
+        }
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "calcs": ["lastNotNull", "mean", "max"]
+        }
+      }
+    },
+    {
+      "id": 10,
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 19},
+      "type": "table",
+      "title": "🎯 Trace Search - Recent Requests",
+      "description": "Latest traces with service topology",
+      "targets": [
+        {
+          "expr": "topk(10, idp_http_requests_total)",
+          "refId": "A",
+          "format": "table",
+          "datasource": "Mimir",
+          "instant": true
+        }
+      ],
+      "datasource": "Mimir",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "endpoint": "Endpoint",
+              "method": "Method",
+              "status": "Status",
+              "Value": "Request Count"
+            }
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "displayMode": "color-background"
+          },
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 100},
+              {"color": "red", "value": 500}
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {"id": "byName", "options": "Status"},
+            "properties": [
+              {
+                "id": "custom.displayMode",
+                "value": "color-background"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {"color": "green", "value": null},
+                    {"color": "yellow", "value": 400},
+                    {"color": "red", "value": 500}
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 11,
+      "gridPos": {"h": 3, "w": 24, "x": 0, "y": 27},
+      "type": "row",
+      "title": "📝 Log Analysis (Loki)",
+      "collapsed": false
+    },
+    {
+      "id": 12,
+      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 28},
+      "type": "logs",
+      "title": "🔴 Critical & Error Logs",
+      "description": "Real-time error and critical log stream",
+      "targets": [
+        {
+          "expr": "{level=~\"error|critical|ERROR|CRITICAL\"} |= ``",
+          "refId": "A",
+          "datasource": "Loki"
+        }
+      ],
+      "datasource": "Loki",
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": true,
+        "enableLogDetails": true,
+        "dedupStrategy": "none",
+        "sortOrder": "Descending"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      }
+    },
+    {
+      "id": 13,
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 38},
+      "type": "bargauge",
+      "title": "📊 Log Volume by Level",
+      "description": "Distribution of log levels",
+      "targets": [
+        {
+          "expr": "sum by (level) (count_over_time({job=\"intelligent-platform\"}[5m]))",
+          "refId": "A",
+          "datasource": "Loki"
+        }
+      ],
+      "datasource": "Loki",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 100},
+              {"color": "orange", "value": 500},
+              {"color": "red", "value": 1000}
+            ]
+          },
+          "unit": "short",
+          "mappings": []
+        },
+        "overrides": [
+          {
+            "matcher": {"id": "byName", "options": "error"},
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "red"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "warning"},
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "orange"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "info"},
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "blue"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient",
+        "showUnfilled": true,
+        "reduceOptions": {
+          "values": false,
+          "calcs": ["lastNotNull"]
+        }
+      }
+    },
+    {
+      "id": 14,
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 38},
+      "type": "logs",
+      "title": "⚠️ Warning & Info Logs",
+      "description": "Non-critical system logs",
+      "targets": [
+        {
+          "expr": "{level=~\"warning|info|WARNING|INFO\"} |= ``",
+          "refId": "A",
+          "datasource": "Loki"
+        }
+      ],
+      "datasource": "Loki",
+      "options": {
+        "showTime": true,
+        "showLabels": false,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": false,
+        "enableLogDetails": true,
+        "dedupStrategy": "none",
+        "sortOrder": "Descending"
+      }
+    },
+    {
+      "id": 15,
+      "gridPos": {"h": 3, "w": 24, "x": 0, "y": 46},
+      "type": "row",
+      "title": "🎨 Advanced Metrics & Analytics",
+      "collapsed": false
+    },
+    {
+      "id": 16,
+      "gridPos": {"h": 9, "w": 8, "x": 0, "y": 47},
+      "type": "piechart",
+      "title": "🥧 Prediction Results Distribution",
+      "description": "Breakdown of ML prediction outcomes",
+      "targets": [
+        {
+          "expr": "sum by (result) (idp_predictions_total)",
+          "refId": "A",
+          "datasource": "Mimir",
+          "instant": true
+        }
+      ],
+      "datasource": "Mimir",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "short"
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": ["lastNotNull"]
+        },
+        "pieType": "donut",
+        "tooltip": {
+          "mode": "single"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "values": ["value", "percent"]
+        },
+        "displayLabels": ["name", "percent"]
+      }
+    },
+    {
+      "id": 17,
+      "gridPos": {"h": 9, "w": 8, "x": 8, "y": 47},
+      "type": "heatmap",
+      "title": "🔥 Request Duration Heatmap",
+      "description": "Latency distribution over time",
+      "targets": [
+        {
+          "expr": "sum(increase(idp_http_request_duration_seconds_bucket[1m])) by (le)",
+          "refId": "A",
+          "format": "heatmap",
+          "datasource": "Mimir"
+        }
+      ],
+      "datasource": "Mimir",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            },
+            "scaleDistribution": {
+              "type": "linear"
+            }
+          }
+        }
+      },
+      "options": {
+        "calculate": false,
+        "cellGap": 2,
+        "color": {
+          "mode": "scheme",
+          "scheme": "Spectral",
+          "steps": 128
+        },
+        "yAxis": {
+          "axisPlacement": "left"
+        },
+        "legend": {
+          "show": true
+        },
+        "tooltip": {
+          "show": true,
+          "yHistogram": false
+        }
+      }
+    },
+    {
+      "id": 18,
+      "gridPos": {"h": 9, "w": 8, "x": 16, "y": 47},
+      "type": "state-timeline",
+      "title": "⏱️ Self-Healing Status Timeline",
+      "description": "Success/failure timeline of healing actions",
+      "targets": [
+        {
+          "expr": "idp_healing_actions_total",
+          "refId": "A",
+          "legendFormat": "{{action_type}} - {{status}}",
+          "datasource": "Mimir"
+        }
+      ],
+      "datasource": "Mimir",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 70
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "red", "value": null},
+              {"color": "green", "value": 1}
+            ]
+          }
+        }
+      },
+      "options": {
+        "mergeValues": true,
+        "showValue": "auto",
+        "alignValue": "left",
+        "rowHeight": 0.9,
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      }
+    },
+    {
+      "id": 19,
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 56},
+      "type": "timeseries",
+      "title": "💾 Database Query Performance",
+      "description": "Database operation metrics",
+      "targets": [
+        {
+          "expr": "rate(idp_db_operations_total[5m])",
+          "refId": "A",
+          "legendFormat": "{{operation}} - {{status}}",
+          "datasource": "Mimir"
+        }
+      ],
+      "datasource": "Mimir",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "opacity",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "showPoints": "auto"
+          },
+          "unit": "ops"
+        }
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": ["lastNotNull", "mean"]
+        }
+      }
+    },
+    {
+      "id": 20,
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 56},
+      "type": "table",
+      "title": "🏆 Top Active ML Models",
+      "description": "Most active models by prediction count",
+      "targets": [
+        {
+          "expr": "topk(10, sum by (model_type) (idp_predictions_total))",
+          "refId": "A",
+          "format": "table",
+          "datasource": "Mimir",
+          "instant": true
+        }
+      ],
+      "datasource": "Mimir",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "displayMode": "color-background",
+            "inspect": false
+          },
+          "color": {
+            "mode": "continuous-GrYlRd"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 50},
+              {"color": "red", "value": 100}
+            ]
+          }
+        }
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "renameByName": {
+              "model_type": "Model Type",
+              "Value": "Predictions"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "templating": {
+    "list": []
+  },
+  "annotations": {
+    "list": [
+      {
+        "datasource": "Mimir",
+        "enable": true,
+        "expr": "changes(idp_healing_actions_total[1m]) > 0",
+        "name": "Self-Healing Events",
+        "tagKeys": "action_type,status",
+        "textFormat": "Healing: {{action_type}}",
+        "titleFormat": "Self-Healing Action"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "links": [],
+  "liveNow": true,
+  "style": "dark"
+}

@@ -23,7 +23,7 @@ from services.trace_analyzer import TraceAnalyzer
 from services.self_healer import SelfHealer
 from services.optimizer import Optimizer
 from api.routes import router
-from monitoring import setup_monitoring
+from monitoring import setup_monitoring, predictions_total, healing_actions_total
 from sqlalchemy import select, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -160,6 +160,9 @@ async def analyze_commit(
         db.add(commit_analysis)
         await db.commit()
 
+        # Track metrics
+        predictions_total.labels(model_type="breaking_change", result="safe").inc()
+
         # Trigger background analysis
         background_tasks.add_task(
             app.state.breaking_change_detector.predict,
@@ -272,6 +275,9 @@ async def trigger_healing(
         )
         db.add(healing_action)
         await db.commit()
+        
+        # Track metrics
+        healing_actions_total.labels(action_type=request.issue_type, status="success").inc()
         
         return {**result, "action_id": action_id}
     except Exception as e:

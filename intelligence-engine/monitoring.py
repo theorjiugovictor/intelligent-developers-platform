@@ -16,7 +16,8 @@ request_count = Counter(
 request_duration = Histogram(
     'idp_http_request_duration_seconds',
     'HTTP request duration',
-    ['method', 'endpoint']
+    ['endpoint'],
+    buckets=[0.01, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0]
 )
 
 
@@ -56,6 +57,12 @@ healing_actions_total = Counter(
     ['action_type', 'status']
 )
 
+db_operations_total = Counter(
+    'idp_db_operations_total',
+    'Total database operations',
+    ['operation', 'status']
+)
+
 def setup_monitoring(app: FastAPI):
     """Setup monitoring for the application"""
 
@@ -76,7 +83,6 @@ def setup_monitoring(app: FastAPI):
         ).inc()
 
         request_duration.labels(
-            method=request.method,
             endpoint=request.url.path
         ).observe(duration)
 
@@ -89,4 +95,3 @@ def setup_monitoring(app: FastAPI):
             content=generate_latest(),
             media_type=CONTENT_TYPE_LATEST
         )
-
