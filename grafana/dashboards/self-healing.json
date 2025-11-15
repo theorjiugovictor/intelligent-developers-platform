@@ -1,0 +1,75 @@
+{
+  "dashboard": {
+    "title": "Self-Healing & Optimization",
+    "tags": ["idp", "healing", "optimization"],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 0,
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "type": "graph",
+        "title": "Healing Actions Over Time",
+        "targets": [
+          {
+            "expr": "rate(idp_healing_actions_total[5m])",
+            "legendFormat": "{{action_type}}",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Mimir"
+      },
+      {
+        "id": 2,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "type": "stat",
+        "title": "Successful Healing Actions",
+        "targets": [
+          {
+            "expr": "sum(idp_healing_actions_total{status=\"success\"})",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Mimir"
+      },
+      {
+        "id": 3,
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8},
+        "type": "table",
+        "title": "Active Optimization Recommendations",
+        "description": "AI-generated recommendations for system optimization",
+        "datasource": "Mimir"
+      },
+      {
+        "id": 4,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+        "type": "bargauge",
+        "title": "Healing Action Status",
+        "targets": [
+          {
+            "expr": "sum by (status) (idp_healing_actions_total)",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Mimir"
+      },
+      {
+        "id": 5,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+        "type": "graph",
+        "title": "System Health Score",
+        "description": "AI-calculated system health based on all metrics",
+        "targets": [
+          {
+            "expr": "avg(idp_system_health_score)",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Mimir"
+      }
+    ]
+  }
+}
+

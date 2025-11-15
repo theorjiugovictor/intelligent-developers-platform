@@ -1,0 +1,168 @@
+version: '3.8'
+
+services:
+  # Grafana - Visualization & Interaction Layer
+  grafana:
+    image: grafana/grafana:latest
+    container_name: idp-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+      - GF_FEATURE_TOGGLES_ENABLE=tempoSearch,tempoBackendSearch
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - grafana-storage:/var/lib/grafana
+    networks:
+      - idp-network
+    depends_on:
+      - mimir
+      - loki
+      - tempo
+
+  # Mimir - Metrics Store
+  mimir:
+    image: grafana/mimir:latest
+    container_name: idp-mimir
+    command: ["-config.file=/etc/mimir/config.yaml"]
+    ports:
+      - "9009:9009"
+    volumes:
+      - ./mimir/config.yaml:/etc/mimir/config.yaml
+      - mimir-data:/data
+    networks:
+      - idp-network
+
+  # Loki - Logs Aggregator
+  loki:
+    image: grafana/loki:latest
+    container_name: idp-loki
+    command: -config.file=/etc/loki/config.yaml
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki/config.yaml:/etc/loki/config.yaml
+      - loki-data:/loki
+    networks:
+      - idp-network
+
+  # Tempo - Traces Backend
+  tempo:
+    image: grafana/tempo:latest
+    container_name: idp-tempo
+    command: ["-config.file=/etc/tempo/config.yaml"]
+    ports:
+      - "3200:3200"   # tempo
+      - "4317:4317"   # otlp grpc
+      - "4318:4318"   # otlp http
+      - "9411:9411"   # zipkin
+    volumes:
+      - ./tempo/config.yaml:/etc/tempo/config.yaml
+      - tempo-data:/tmp/tempo
+    networks:
+      - idp-network
+
+  # PostgreSQL - Storage for AI/ML models and historical analysis
+  postgres:
+    image: postgres:15-alpine
+    container_name: idp-postgres
+    environment:
+      - POSTGRES_DB=idp_intelligence
+      - POSTGRES_USER=idp_user
+      - POSTGRES_PASSWORD=idp_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - idp-network
+
+  # Redis - Caching and real-time data
+  redis:
+    image: redis:7-alpine
+    container_name: idp-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - idp-network
+
+  # AI/ML Intelligence Engine
+  intelligence-engine:
+    build:
+      context: ./intelligence-engine
+      dockerfile: Dockerfile
+    container_name: idp-intelligence-engine
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://idp_user:idp_pass@postgres:5432/idp_intelligence
+      - REDIS_URL=redis://redis:6379
+      - LOKI_URL=http://loki:3100
+      - MIMIR_URL=http://mimir:9009
+      - TEMPO_URL=http://tempo:3200
+    volumes:
+      - ./intelligence-engine:/app
+      - ./models:/app/models
+    networks:
+      - idp-network
+    depends_on:
+      - postgres
+      - redis
+      - loki
+      - mimir
+      - tempo
+
+  # Data Collector Service
+  data-collector:
+    build:
+      context: ./data-collector
+      dockerfile: Dockerfile
+    container_name: idp-data-collector
+    environment:
+      - LOKI_URL=http://loki:3100
+      - MIMIR_URL=http://mimir:9009
+      - TEMPO_URL=http://tempo:3200
+      - INTELLIGENCE_ENGINE_URL=http://intelligence-engine:8000
+    volumes:
+      - ./data-collector:/app
+      - /var/run/docker.sock:/var/run/docker.sock  # For Docker metrics
+    networks:
+      - idp-network
+    depends_on:
+      - intelligence-engine
+
+  # Prometheus for additional metrics collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: idp-prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-remote-write-receiver'
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    networks:
+      - idp-network
+
+volumes:
+  grafana-storage:
+  mimir-data:
+  loki-data:
+  tempo-data:
+  postgres-data:
+  redis-data:
+  prometheus-data:
+
+networks:
+  idp-network:
+    driver: bridge
+

@@ -1,0 +1,67 @@
+{
+  "dashboard": {
+    "title": "Code Quality & Predictions",
+    "tags": ["idp", "code-quality", "predictions"],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 0,
+    "refresh": "1m",
+    "panels": [
+      {
+        "id": 1,
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 0},
+        "type": "table",
+        "title": "Recent Breaking Change Predictions",
+        "targets": [
+          {
+            "expr": "idp_predictions_total{model_type=\"breaking_change\"}",
+            "refId": "A",
+            "format": "table"
+          }
+        ],
+        "datasource": "Mimir",
+        "description": "Real-time predictions of breaking changes in commits"
+      },
+      {
+        "id": 2,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+        "type": "bargauge",
+        "title": "Prediction Confidence Distribution",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, idp_predictions_total)",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Mimir"
+      },
+      {
+        "id": 3,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+        "type": "piechart",
+        "title": "Prediction Types Distribution",
+        "targets": [
+          {
+            "expr": "sum by (model_type) (idp_predictions_total)",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Mimir"
+      },
+      {
+        "id": 4,
+        "gridPos": {"h": 10, "w": 24, "x": 0, "y": 16},
+        "type": "logs",
+        "title": "Intelligence Engine Logs",
+        "targets": [
+          {
+            "expr": "{job=\"intelligence-engine\"} |= ``",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Loki"
+      }
+    ]
+  }
+}
+

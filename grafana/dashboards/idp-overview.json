@@ -1,0 +1,109 @@
+{
+  "dashboard": {
+    "title": "Intelligent Development Platform - Overview",
+    "tags": ["idp", "overview"],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 0,
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "type": "graph",
+        "title": "Breaking Change Detection Rate",
+        "targets": [
+          {
+            "expr": "rate(idp_predictions_total{model_type=\"breaking_change\"}[5m])",
+            "legendFormat": "{{result}}",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Mimir"
+      },
+      {
+        "id": 2,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "type": "stat",
+        "title": "Total Breaking Changes Detected",
+        "targets": [
+          {
+            "expr": "sum(idp_predictions_total{model_type=\"breaking_change\",result=\"breaking\"})",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Mimir"
+      },
+      {
+        "id": 3,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+        "type": "graph",
+        "title": "Anomaly Detection",
+        "targets": [
+          {
+            "expr": "rate(idp_predictions_total{model_type=\"anomaly\"}[5m])",
+            "legendFormat": "Anomalies detected",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Mimir"
+      },
+      {
+        "id": 4,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+        "type": "graph",
+        "title": "Self-Healing Actions",
+        "targets": [
+          {
+            "expr": "rate(idp_healing_actions_total[5m])",
+            "legendFormat": "{{action_type}} - {{status}}",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Mimir"
+      },
+      {
+        "id": 5,
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 16},
+        "type": "logs",
+        "title": "Recent Error Logs",
+        "targets": [
+          {
+            "expr": "{level=~\"error|critical\"} |= ``",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Loki"
+      },
+      {
+        "id": 6,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24},
+        "type": "graph",
+        "title": "API Response Time (p95)",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(idp_http_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "{{endpoint}}",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Mimir"
+      },
+      {
+        "id": 7,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24},
+        "type": "table",
+        "title": "Active ML Models",
+        "targets": [
+          {
+            "expr": "idp_active_models",
+            "refId": "A",
+            "format": "table"
+          }
+        ],
+        "datasource": "Mimir"
+      }
+    ]
+  }
+}
+

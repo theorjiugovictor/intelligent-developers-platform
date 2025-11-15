@@ -1,0 +1,75 @@
+{
+  "dashboard": {
+    "title": "Performance Analytics & Traces",
+    "tags": ["idp", "performance", "traces"],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 0,
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 0},
+        "type": "timeseries",
+        "title": "Service Latency (p50, p95, p99)",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(idp_http_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "p50 - {{endpoint}}",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(idp_http_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "p95 - {{endpoint}}",
+            "refId": "B"
+          },
+          {
+            "expr": "histogram_quantile(0.99, rate(idp_http_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "p99 - {{endpoint}}",
+            "refId": "C"
+          }
+        ],
+        "datasource": "Mimir"
+      },
+      {
+        "id": 2,
+        "gridPos": {"h": 10, "w": 24, "x": 0, "y": 8},
+        "type": "nodeGraph",
+        "title": "Service Dependency Map",
+        "description": "Real-time service dependencies learned from traces",
+        "datasource": "Tempo"
+      },
+      {
+        "id": 3,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 18},
+        "type": "table",
+        "title": "Slowest Traces",
+        "description": "Top 10 slowest traces detected by AI",
+        "datasource": "Tempo"
+      },
+      {
+        "id": 4,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 18},
+        "type": "table",
+        "title": "Performance Bottlenecks",
+        "description": "AI-identified performance bottlenecks",
+        "datasource": "Tempo"
+      },
+      {
+        "id": 5,
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 26},
+        "type": "graph",
+        "title": "Error Rate by Service",
+        "targets": [
+          {
+            "expr": "sum by (service_name) (rate(traces_spanmetrics_calls_total{status_code=\"STATUS_CODE_ERROR\"}[5m]))",
+            "legendFormat": "{{service_name}}",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Mimir"
+      }
+    ]
+  }
+}
+
