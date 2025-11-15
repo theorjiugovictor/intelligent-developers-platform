@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligence Engine - Main Dashboard</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Additional styles specific to main dashboard */
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+            background: var(--bg-primary);
+        }
+
+        .dashboard-header {
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .status-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .status-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--primary-color);
+        }
+
+        .status-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .status-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .status-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-size: 1.5rem;
+        }
+
+        .status-icon.success {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success-color);
+        }
+
+        .status-icon.danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger-color);
+        }
+
+        .status-icon.warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning-color);
+        }
+
+        .status-icon.info {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--info-color);
+        }
+
+        .refresh-button {
+            padding: 0.5rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .refresh-button:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .recommendation-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .recommendation-badge.safe {
+            background: rgba(16, 185, 129, 0.15);
+            border: 2px solid var(--success-color);
+            color: var(--success-color);
+        }
+
+        .recommendation-badge.unsafe {
+            background: rgba(239, 68, 68, 0.15);
+            border: 2px solid var(--danger-color);
+            color: var(--danger-color);
+        }
+
+        .recommendation-badge i {
+            font-size: 1.5rem;
+        }
+
+        .confidence-meter {
+            margin-bottom: 1.5rem;
+        }
+
+        .confidence-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .confidence-bar {
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success-color), var(--primary-color));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .reasons-list {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .reasons-list li {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: var(--bg-tertiary);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .reasons-list li i {
+            color: var(--primary-light);
+        }
+
+        .issues-section {
+            margin-top: 1.5rem;
+        }
+
+        .issue-item {
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            background: var(--bg-tertiary);
+            border-radius: 0.5rem;
+            border-left: 3px solid var(--border-color);
+        }
+
+        .issue-item.high {
+            border-left-color: var(--danger-color);
+            background: rgba(239, 68, 68, 0.08);
+        }
+
+        .issue-item.medium {
+            border-left-color: var(--warning-color);
+            background: rgba(245, 158, 11, 0.08);
+        }
+
+        .issue-item.low {
+            border-left-color: var(--info-color);
+            background: rgba(59, 130, 246, 0.08);
+        }
+
+        .issue-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .issue-type {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        .issue-severity {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .issue-severity.high {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger-color);
+        }
+
+        .issue-severity.medium {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning-color);
+        }
+
+        .issue-severity.low {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--info-color);
+        }
+
+        .issue-message {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .metric-box {
+            background: var(--bg-tertiary);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary-light);
+            display: block;
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .healing-actions {
+            margin-top: 1.5rem;
+        }
+
+        .healing-action {
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            background: var(--bg-tertiary);
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .healing-action:hover {
+            background: var(--bg-secondary);
+            transform: translateX(4px);
+        }
+
+        .healing-action-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .healing-action-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .healing-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .healing-status.completed {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success-color);
+        }
+
+        .healing-status.in_progress {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--info-color);
+        }
+
+        .healing-action-details {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .healing-action-time {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--bg-tertiary);
+            padding: 1.25rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .stat-card:hover {
+            background: var(--bg-secondary);
+            transform: scale(1.02);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-light);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .loading-spinner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .spinner-large {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--border-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            padding: 1.5rem;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger-color);
+            border-radius: 0.75rem;
+            color: var(--danger-color);
+            text-align: center;
+        }
+
+        .timestamp {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">
+                <i class="fas fa-brain"></i> Intelligence Engine Dashboard
+            </h1>
+            <p class="dashboard-subtitle">Real-time commit recommendations and self-healing status</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Commit Status Card -->
+            <div class="status-card" id="commit-card">
+                <div class="status-header">
+                    <div class="status-title">
+                        <div class="status-icon success" id="commit-icon">
+                            <i class="fas fa-code-branch"></i>
+                        </div>
+                        <span>Commit Status</span>
+                    </div>
+                    <button class="refresh-button" onclick="refreshCommitStatus()">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                </div>
+
+                <div id="commit-content">
+                    <div class="loading-spinner">
+                        <div class="spinner-large"></div>
+                        <p style="margin-top: 1rem;">Analyzing codebase...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Self-Healing Status Card -->
+            <div class="status-card" id="healing-card">
+                <div class="status-header">
+                    <div class="status-title">
+                        <div class="status-icon info" id="healing-icon">
+                            <i class="fas fa-magic"></i>
+                        </div>
+                        <span>Self-Healing</span>
+                    </div>
+                    <button class="refresh-button" onclick="refreshHealingStatus()">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                </div>
+
+                <div id="healing-content">
+                    <div class="loading-spinner">
+                        <div class="spinner-large"></div>
+                        <p style="margin-top: 1rem;">Loading healing status...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fetch commit status
+        async function fetchCommitStatus() {
+            try {
+                const response = await fetch('/api/v1/commit-status');
+                const data = await response.json();
+                renderCommitStatus(data);
+            } catch (error) {
+                renderCommitError(error);
+            }
+        }
+
+        // Render commit status
+        function renderCommitStatus(data) {
+            const commitContent = document.getElementById('commit-content');
+            const commitIcon = document.getElementById('commit-icon');
+
+            // Update icon
+            if (data.should_commit) {
+                commitIcon.className = 'status-icon success';
+                commitIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
+            } else {
+                commitIcon.className = 'status-icon danger';
+                commitIcon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+            }
+
+            // Build content
+            let html = `
+                <div class="recommendation-badge ${data.should_commit ? 'safe' : 'unsafe'}">
+                    <i class="fas fa-${data.should_commit ? 'check-circle' : 'times-circle'}"></i>
+                    <span>${data.recommendation}</span>
+                </div>
+
+                <div class="confidence-meter">
+                    <div class="confidence-label">
+                        <span>Confidence</span>
+                        <span><strong>${(data.confidence * 100).toFixed(0)}%</strong></span>
+                    </div>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" style="width: ${data.confidence * 100}%"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 style="color: var(--text-primary); margin-bottom: 1rem; font-size: 1.1rem;">
+                        <i class="fas fa-list"></i> Analysis Summary
+                    </h4>
+                    <ul class="reasons-list">
+            `;
+
+            data.reasons.forEach(reason => {
+                html += `
+                    <li>
+                        <i class="fas fa-chevron-right"></i>
+                        <span>${reason}</span>
+                    </li>
+                `;
+            });
+
+            html += `</ul></div>`;
+
+            // Add issues if any
+            if (data.issues && data.issues.length > 0) {
+                html += `
+                    <div class="issues-section">
+                        <h4 style="color: var(--text-primary); margin-bottom: 1rem; font-size: 1.1rem;">
+                            <i class="fas fa-exclamation-circle"></i> Issues Found
+                        </h4>
+                `;
+
+                data.issues.forEach(issue => {
+                    html += `
+                        <div class="issue-item ${issue.severity}">
+                            <div class="issue-header">
+                                <div class="issue-type">${issue.type.replace(/_/g, ' ').toUpperCase()}</div>
+                                <div class="issue-severity ${issue.severity}">${issue.severity}</div>
+                            </div>
+                            <div class="issue-message">${issue.message}</div>
+                        </div>
+                    `;
+                });
+
+                html += `</div>`;
+            }
+
+            // Add metrics
+            html += `
+                <div class="metrics-grid">
+                    <div class="metric-box">
+                        <span class="metric-value">${data.metrics.code_quality_score}%</span>
+                        <span class="metric-label">Code Quality</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-value">${data.metrics.test_coverage}%</span>
+                        <span class="metric-label">Test Coverage</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-value">${data.metrics.breaking_changes}</span>
+                        <span class="metric-label">Breaking Changes</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-value">${data.metrics.files_analyzed}</span>
+                        <span class="metric-label">Files Analyzed</span>
+                    </div>
+                </div>
+
+                <div class="timestamp">
+                    Last updated: ${new Date(data.timestamp).toLocaleString()}
+                </div>
+            `;
+
+            commitContent.innerHTML = html;
+        }
+
+        // Render commit error
+        function renderCommitError(error) {
+            const commitContent = document.getElementById('commit-content');
+            commitContent.innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                    <p><strong>Failed to load commit status</strong></p>
+                    <p style="margin-top: 0.5rem; font-size: 0.9rem;">${error.message}</p>
+                </div>
+            `;
+        }
+
+        // Fetch self-healing status
+        async function fetchHealingStatus() {
+            try {
+                const response = await fetch('/api/v1/self-healing-status');
+                const data = await response.json();
+                renderHealingStatus(data);
+            } catch (error) {
+                renderHealingError(error);
+            }
+        }
+
+        // Render healing status
+        function renderHealingStatus(data) {
+            const healingContent = document.getElementById('healing-content');
+            const healingIcon = document.getElementById('healing-icon');
+
+            // Update icon based on health
+            if (data.health === 'good') {
+                healingIcon.className = 'status-icon success';
+                healingIcon.innerHTML = '<i class="fas fa-heart"></i>';
+            } else {
+                healingIcon.className = 'status-icon warning';
+                healingIcon.innerHTML = '<i class="fas fa-exclamation-circle"></i>';
+            }
+
+            // Build content
+            let html = `
+                <div class="stats-overview">
+                    <div class="stat-card">
+                        <div class="stat-value">${data.statistics.total_healing_actions}</div>
+                        <div class="stat-label">Total Actions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${data.statistics.successful_actions}</div>
+                        <div class="stat-label">Successful</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${data.statistics.in_progress}</div>
+                        <div class="stat-label">In Progress</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${data.statistics.success_rate.toFixed(0)}%</div>
+                        <div class="stat-label">Success Rate</div>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 style="color: var(--text-primary); margin-bottom: 1rem; font-size: 1.1rem;">
+                        <i class="fas fa-history"></i> Recent Healing Actions
+                    </h4>
+                    <div class="healing-actions">
+            `;
+
+            data.recent_actions.forEach(action => {
+                const icon = action.success === true ? 'check-circle' : 
+                            action.success === false ? 'times-circle' : 'clock';
+                html += `
+                    <div class="healing-action">
+                        <div class="healing-action-header">
+                            <div class="healing-action-title">
+                                <i class="fas fa-${icon}"></i>
+                                <span>${action.service}</span>
+                            </div>
+                            <div class="healing-status ${action.status}">${action.status.replace('_', ' ')}</div>
+                        </div>
+                        <div class="healing-action-details">${action.action_taken}</div>
+                        <div class="healing-action-time">
+                            <i class="fas fa-clock"></i>
+                            ${new Date(action.timestamp).toLocaleString()}
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `
+                    </div>
+                </div>
+
+                <div class="timestamp">
+                    Last updated: ${new Date(data.timestamp).toLocaleString()}
+                </div>
+            `;
+
+            healingContent.innerHTML = html;
+        }
+
+        // Render healing error
+        function renderHealingError(error) {
+            const healingContent = document.getElementById('healing-content');
+            healingContent.innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                    <p><strong>Failed to load healing status</strong></p>
+                    <p style="margin-top: 0.5rem; font-size: 0.9rem;">${error.message}</p>
+                </div>
+            `;
+        }
+
+        // Refresh functions
+        function refreshCommitStatus() {
+            const commitContent = document.getElementById('commit-content');
+            commitContent.innerHTML = `
+                <div class="loading-spinner">
+                    <div class="spinner-large"></div>
+                    <p style="margin-top: 1rem;">Analyzing codebase...</p>
+                </div>
+            `;
+            fetchCommitStatus();
+        }
+
+        function refreshHealingStatus() {
+            const healingContent = document.getElementById('healing-content');
+            healingContent.innerHTML = `
+                <div class="loading-spinner">
+                    <div class="spinner-large"></div>
+                    <p style="margin-top: 1rem;">Loading healing status...</p>
+                </div>
+            `;
+            fetchHealingStatus();
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            fetchCommitStatus();
+            fetchHealingStatus();
+        }, 30000);
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchCommitStatus();
+            fetchHealingStatus();
+        });
+
+        // Console message
+        console.log('%c Intelligence Engine Dashboard ', 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-size: 16px; font-weight: bold; padding: 10px 20px; border-radius: 5px;');
+    </script>
+</body>
+</html>
