@@ -35,7 +35,13 @@ class Settings(BaseSettings):
     ENABLE_PERFORMANCE_PREDICTION: bool = True
     ENABLE_SELF_HEALING: bool = True
 
-    # Claude API (optional)
+    # AI API Configuration (Claude/OpenRouter)
+    OPENROUTER_API_KEY: Optional[str] = None
+    OPENROUTER_BASE_URL: str = "https://openrouter.ai/api/v1"
+    AI_MODEL: str = "anthropic/claude-3.5-sonnet"
+    AI_MAX_TOKENS: int = 4096
+    
+    # Legacy Claude API support (kept for backwards compatibility)
     CLAUDE_API_KEY: Optional[str] = None
     CLAUDE_MODEL: str = "claude-sonnet-4-5-20250514"
     CLAUDE_MAX_TOKENS: int = 4096
@@ -45,4 +51,3 @@ class Settings(BaseSettings):
         case_sensitive = True
 
 settings = Settings()
-

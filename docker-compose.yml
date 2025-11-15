@@ -1,12 +1,10 @@
-version: '3.8'
-
 services:
   # Grafana - Visualization & Interaction Layer
   grafana:
     image: grafana/grafana:latest
     container_name: idp-grafana
     ports:
-      - "3000:3000"
+      - "3001:3000"
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
@@ -75,7 +73,7 @@ services:
       - POSTGRES_USER=idp_user
       - POSTGRES_PASSWORD=idp_pass
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -107,6 +105,10 @@ services:
       - LOKI_URL=http://loki:3100
       - MIMIR_URL=http://mimir:9009
       - TEMPO_URL=http://tempo:3200
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - OPENROUTER_BASE_URL=${OPENROUTER_BASE_URL:-https://openrouter.ai/api/v1}
+      - AI_MODEL=${AI_MODEL:-anthropic/claude-3.5-sonnet}
+      - AI_MAX_TOKENS=${AI_MAX_TOKENS:-4096}
     volumes:
       - ./intelligence-engine:/app
       - ./models:/app/models
@@ -166,4 +168,3 @@ volumes:
 networks:
   idp-network:
     driver: bridge
-
