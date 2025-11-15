@@ -3,10 +3,13 @@ Main FastAPI application for the Intelligence Engine
 """
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from contextlib import asynccontextmanager
 import logging
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
+import os
 
 from config import settings
 from database import init_db  # removed get_db unused
@@ -55,7 +58,9 @@ app = FastAPI(
     title="Intelligent Development Platform - Intelligence Engine",
     description="AI/ML powered platform for predictive development insights",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
+    docs_url="/swagger",  # Move default Swagger UI to /swagger
+    redoc_url="/redoc"
 )
 
 # Setup CORS
@@ -69,6 +74,17 @@ app.add_middleware(
 
 # Setup monitoring
 setup_monitoring(app)
+
+# Mount static files
+static_path = os.path.join(os.path.dirname(__file__), "static")
+app.mount("/static", StaticFiles(directory=static_path), name="static")
+
+# Serve custom modern UI at /docs
+@app.get("/docs", include_in_schema=False)
+async def custom_docs():
+    """Serve the modern custom API documentation"""
+    docs_path = os.path.join(static_path, "docs.html")
+    return FileResponse(docs_path)
 
 # Include routers
 app.include_router(router, prefix="/api/v1")
