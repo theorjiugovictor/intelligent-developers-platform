@@ -20,6 +20,7 @@ class Optimizer:
         severity: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """Get optimization recommendations"""
+        from monitoring import recommendations_total
         try:
             # In production, fetch from database
             recommendations = await self._generate_recommendations()
@@ -36,6 +37,10 @@ class Optimizer:
                 key=lambda x: x.get('estimated_impact', 0),
                 reverse=True
             )
+
+            # Increment Prometheus metric for recommendations
+            for r in recommendations[:limit]:
+                recommendations_total.labels(severity=r.get('severity', 'unknown')).inc()
 
             return recommendations[:limit]
 

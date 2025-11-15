@@ -3,11 +3,12 @@ Summarizes trace spans for simple performance indicators.
 """
 from __future__ import annotations
 
+
 from typing import Dict, Any, List
 from datetime import datetime, timezone
 import logging
 import random
-
+from monitoring import trace_analyses_total
 logger = logging.getLogger(__name__)
 
 class TraceAnalyzer:
@@ -21,6 +22,9 @@ class TraceAnalyzer:
         avg_latency = sum(span_latencies)/count if count else 0.0
         p95 = sorted(span_latencies)[int(0.95*count)-1] if count >= 1 else 0
         services = list({t.get("service") for t in traces if t.get("service")})
+        # Increment Prometheus metric for trace analysis
+        result = "success" if count > 0 else "empty"
+        trace_analyses_total.labels(result=result).inc()
         return {
             "trace_count": count,
             "avg_latency_ms": round(avg_latency, 2),

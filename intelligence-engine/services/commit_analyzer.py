@@ -4,6 +4,7 @@ Parses commit diffs and metadata (placeholder implementation).
 from __future__ import annotations
 
 from typing import Dict, Any
+from monitoring import predictions_total
 from datetime import datetime, timezone
 import logging
 import random
@@ -20,6 +21,8 @@ class CommitAnalyzer:
         lines_added = random.randint(5, 500)
         lines_deleted = random.randint(0, 200)
         risky_patterns = [p for p in ["db_migration", "auth_logic", "dependency_version"] if random.random() < 0.3]
+        # Increment Prometheus metric for breaking change prediction
+        predictions_total.labels(model_type="breaking_change", result="success").inc()
         return {
             "repository": repository,
             "commit_hash": commit_hash,

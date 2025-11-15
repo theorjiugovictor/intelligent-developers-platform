@@ -19,10 +19,30 @@ request_duration = Histogram(
     ['method', 'endpoint']
 )
 
+
+# Business metrics
 predictions_total = Counter(
     'idp_predictions_total',
     'Total predictions made',
     ['model_type', 'result']
+)
+
+log_analyses_total = Counter(
+    'idp_log_analyses_total',
+    'Total log analyses performed',
+    ['result']
+)
+
+trace_analyses_total = Counter(
+    'idp_trace_analyses_total',
+    'Total trace analyses performed',
+    ['result']
+)
+
+recommendations_total = Counter(
+    'idp_recommendations_total',
+    'Total recommendations generated',
+    ['severity']
 )
 
 active_models = Gauge(

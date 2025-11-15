@@ -3,11 +3,12 @@ Aggregates log entries into simple metrics.
 """
 from __future__ import annotations
 
+
 from typing import Dict, Any, List
 from datetime import datetime, timezone
 import logging
 import random
-
+from monitoring import log_analyses_total
 logger = logging.getLogger(__name__)
 
 class LogAnalyzer:
@@ -21,6 +22,9 @@ class LogAnalyzer:
         warn_count = sum(1 for l in logs if l.get("level") == "warning")
         info_count = sum(1 for l in logs if l.get("level") == "info")
         services = list({l.get("service") for l in logs if l.get("service")})
+        # Increment Prometheus metric for log analysis
+        result = "success" if log_count > 0 else "empty"
+        log_analyses_total.labels(result=result).inc()
         return {
             "log_count": log_count,
             "error_count": error_count,
